@@ -1,0 +1,15 @@
+{
+  "bin": {"handbrake-watcher": "jdeploy-bundle/jdeploy.js"},
+  "author": "",
+  "description": "",
+  "main": "index.js",
+  "preferGlobal": true,
+  "repository": "",
+  "version": "1.0.3",
+  "jdeploy": {"jar": "dist/handbrake-watcher.jar"},
+  "dependencies": {"shelljs": "^0.7.5"},
+  "license": "ISC",
+  "name": "handbrake-watcher",
+  "files": ["jdeploy-bundle"],
+  "scripts": {"test": "echo \"Error: no test specified\" && exit 1"}
+}
