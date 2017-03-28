@@ -41,7 +41,7 @@ public class HandbrakeWatcher {
             }
             try {
                 // We'll wait 5 minutes between crawls
-                Thread.sleep(5 * 60 * 1000);
+                Thread.sleep(5 * 60 * 1000l);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -130,6 +130,16 @@ public class HandbrakeWatcher {
     }
     
     private void crawl(File root) {
+        
+        // Let's rename any autonamed titles from makemkv
+        if (root.isFile() && root.getName().matches("^title\\d\\d\\.mkv$")) {
+            String newName = root.getName().replace("title", "Extras (autogen) ").replace(".mkv", "-behindthescenes.mkv");
+            File newFile = new File(root.getParentFile(), newName);
+            if (root.renameTo(newFile)) {
+                root = newFile;
+            }
+        }
+        
         String sourceExtension = props.getProperty("source.extension", "mkv");
         String destExtension = props.getProperty("destination.extension", "mp4");
         if (root.isFile() && root.getName().endsWith("."+sourceExtension)) {
@@ -150,7 +160,11 @@ public class HandbrakeWatcher {
             }
         } else if (root.isDirectory()) {
             for (File child : root.listFiles()) {
-                crawl(child);
+                try {
+                    crawl(child);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
