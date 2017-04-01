@@ -120,6 +120,10 @@ public class HandbrakeWatcher {
                 }
             } else {
                 System.err.println("Failed to convert file "+file+" to "+destFile+".  Exit code "+p.exitValue());
+                // We'll delete the destFile because, if it failed, we don't want it
+                if (destFile.exists()) {
+                    destFile.delete();
+                }
                 return p.exitValue();
             }
         } catch (InterruptedException ex) {
@@ -137,6 +141,35 @@ public class HandbrakeWatcher {
             File newFile = new File(root.getParentFile(), newName);
             if (root.renameTo(newFile)) {
                 root = newFile;
+            }
+        }
+        
+        if (root.isFile() && root.getName().matches("^.*_t\\d\\d\\.mkv$")) {
+            String newName = root.getName().substring(0, root.getName().lastIndexOf('.')) + "-behindthescenes.mkv";
+            File newFile = new File(root.getParentFile(), newName);
+            if (root.renameTo(newFile)) {
+                root = newFile;
+            }
+        }
+        
+        // To make it faster to catalog sometimes we just dump disc 2 or disc 3 inside the movie
+        // In this case we'll move all of the children out to the movie folder directly
+        // taking care to avoid naming collisions.
+        if (root.isDirectory() && "D2".equals(root.getName()) || "D3".equals(root.getName())) {
+            // This is a directory with disc 2 or disc 3
+            File parentDir = root.getParentFile();
+            for (File child : root.listFiles()) {
+                File destChild = new File(parentDir, child.getName());
+                while (destChild.exists()) {
+                    String destChildName = root.getName()+":"+destChild.getName();
+                    destChild = new File(parentDir, destChildName);
+                }
+                
+                if (child.renameTo(destChild)) {
+                    // Since it might not be processed by this crawl,
+                    // we'll process it now.
+                    crawl(destChild);
+                }
             }
         }
         
