@@ -136,7 +136,7 @@ public class HandbrakeWatcher {
     private void crawl(File root) {
         
         // Let's rename any autonamed titles from makemkv
-        if (root.isFile() && root.getName().matches("^title\\d\\d\\.mkv$")) {
+        if (root.isFile() && root.getName().matches("^(D\\d:)?title\\d\\d\\.mkv$")) {
             String newName = root.getName().replace("title", "Extras (autogen) ").replace(".mkv", "-behindthescenes.mkv");
             File newFile = new File(root.getParentFile(), newName);
             if (root.renameTo(newFile)) {
