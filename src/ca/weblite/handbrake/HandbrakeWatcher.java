@@ -73,7 +73,7 @@ public class HandbrakeWatcher {
         }
         
         ProcessBuilder pb = new ProcessBuilder();
-        String handbrake = props.getProperty("handbrakecli", "HandBrakeCLI");
+        String handbrake = getProperty("handbrakecli", "HandBrakeCLI");
         
         ArrayList<String> commands = new ArrayList<String>();
         commands.add(handbrake);
@@ -82,11 +82,11 @@ public class HandbrakeWatcher {
         for (Object key : props.keySet()) {
             String skey = (String)key;
             if ( skey.startsWith("handbrake.options.")) {
-                handbrakeOpts.put(skey.substring("handbrake.options.".length()), props.getProperty(skey));
+                handbrakeOpts.put(skey.substring("handbrake.options.".length()), getProperty(skey, ""));
             }
         }
         
-        List<String> flags = new ArrayList<String>(Arrays.asList(props.getProperty("handbrake.flags", "").split(" ")));
+        List<String> flags = new ArrayList<String>(Arrays.asList(getProperty("handbrake.flags", "").split(" ")));
         if (!flags.contains("--all-audio")) {
             flags.add("--all-audio");
         }
@@ -115,7 +115,7 @@ public class HandbrakeWatcher {
             if (p.waitFor() == 0) {
                 // The conversion was successful
                 // Let's delete the original
-                if (props.getProperty("delete_original", "true").equals("true")) {
+                if (getProperty("delete_original", "true").equals("true")) {
                     file.delete();
                 }
             } else {
@@ -131,6 +131,10 @@ public class HandbrakeWatcher {
             throw new IOException(ex);
         }
         return 0;
+    }
+    
+    private String getProperty(String key, String defaultVal) {
+        return System.getProperty(key, props.getProperty(key, defaultVal));
     }
     
     private void crawl(File root) {
@@ -173,8 +177,8 @@ public class HandbrakeWatcher {
             }
         }
         
-        String sourceExtension = props.getProperty("source.extension", "mkv");
-        String destExtension = props.getProperty("destination.extension", "mp4");
+        String sourceExtension = getProperty("source.extension", "mkv");
+        String destExtension = getProperty("destination.extension", "mp4");
         if (root.isFile() && root.getName().endsWith("."+sourceExtension)) {
             String baseName = root.getName().substring(0, root.getName().length() - sourceExtension.length() - 1);
             File destFile = new File(root.getParentFile(), baseName + "." + destExtension);

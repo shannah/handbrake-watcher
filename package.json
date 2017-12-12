@@ -1,15 +1,25 @@
 {
-  "bin": {"handbrake-watcher": "jdeploy-bundle/jdeploy.js"},
+  "bin": {
+    "handbrake-watcher": "jdeploy-bundle/jdeploy.js"
+  },
   "author": "Steve Hannah",
   "description": "Monitor directory for .mkv files and convert to .mp4 using HandbrakeCLI",
   "main": "index.js",
   "preferGlobal": true,
   "repository": "https://github.com/shannah/handbrake-watcher",
-  "version": "1.0.9",
-  "jdeploy": {"jar": "dist/handbrake-watcher.jar"},
-  "dependencies": {"shelljs": "^0.7.5"},
+  "version": "1.0.10",
+  "jdeploy": {
+    "jar": "dist/handbrake-watcher.jar"
+  },
+  "dependencies": {
+    "shelljs": "^0.7.5"
+  },
   "license": "ISC",
   "name": "handbrake-watcher",
-  "files": ["jdeploy-bundle"],
-  "scripts": {"test": "echo \"Error: no test specified\" && exit 1"}
+  "files": [
+    "jdeploy-bundle"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
 }
