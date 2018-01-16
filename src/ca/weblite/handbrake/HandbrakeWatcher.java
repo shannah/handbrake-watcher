@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  * @author shannah
  */
 public class HandbrakeWatcher {
-    private static final String VERSION="1.0";
+    private static final String VERSION="1.0.14";
     Properties props;
     File root;
     public HandbrakeWatcher(File root, Properties props) {
@@ -194,22 +194,31 @@ public class HandbrakeWatcher {
             }
         }
         
-        String sourceExtension = getProperty("source.extension", "mkv");
+        String[] sourceExtensions = getProperty("source.extension", "mkv").split(" ");
         String destExtension = getProperty("destination.extension", "mp4");
-        if (root.isFile() && root.getName().endsWith("."+sourceExtension)) {
-            String baseName = root.getName().substring(0, root.getName().length() - sourceExtension.length() - 1);
-            File destFile = new File(root.getParentFile(), baseName + "." + destExtension);
-            if (destFile.exists()) {
-                System.err.println(destFile+" already exists.  Not converting "+root);
-            } else {
-                try {
-                    int result = convert(root, sourceExtension, destExtension);
-                    if (result != 0) {
-                        System.err.println("Failed to convert file "+root);
+        
+        if (root.isFile()) {
+            for (String sourceExtension : sourceExtensions) {
+                sourceExtension = sourceExtension.trim();
+                if (sourceExtension.isEmpty()) {
+                    continue;
+                }
+                if (root.getName().endsWith("." + sourceExtension)) {
+                    String baseName = root.getName().substring(0, root.getName().length() - sourceExtension.length() - 1);
+                    File destFile = new File(root.getParentFile(), baseName + "." + destExtension);
+                    if (destFile.exists()) {
+                        System.err.println(destFile + " already exists.  Not converting " + root);
+                    } else {
+                        try {
+                            int result = convert(root, sourceExtension, destExtension);
+                            if (result != 0) {
+                                System.err.println("Failed to convert file " + root);
+                            }
+                        } catch (Exception ex) {
+                            System.err.println("Failed to convert file " + root + ": " + ex.getMessage());
+                            ex.printStackTrace();
+                        }
                     }
-                } catch (Exception ex) {
-                    System.err.println("Failed to convert file "+root+": "+ex.getMessage());
-                    ex.printStackTrace();
                 }
             }
         } else if (root.isDirectory()) {
@@ -268,10 +277,13 @@ public class HandbrakeWatcher {
                 + "----------------------------\n\n"
                 + "You can customize the operation of the watcher by placing a \n"
                 + "config file named 'handbrake.properties' in the directory that\n"
-                + "is being watched.  The followign configuration options are \n"
+                + "is being watched.  Properties can also be specified on the \n"
+                + "command-line using -Dpropname=valuename.\n"
+                + "The following configuration options are \n"
                 + "supported:\n\n"
                 + "  source.extension - The 'source' extension of files to look \n"
-                + "      for.  Default is mkv\n\n"
+                + "      for.  Default is mkv. Multiple extensions separated by \n"
+                + "      spaces.\n\n"
                 + "  destination.extension - The extension used for converted files.\n"
                 + "      Default is mp4.  E.g. This would convert a file named\n"
                 + "      myvideo.mkv into a file named myvideo.mp4 in the same\n"

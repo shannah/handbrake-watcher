@@ -3,3 +3,4 @@ dist
 jdeploy-bundle
 node_modules
 private
+package-lock.json
