@@ -13,6 +13,9 @@ the HandbrakeCLI command-line tool into a different codec
 
 **Windows**
 
+You will first need to install a package manager called npm. [Download](https://www.npmjs.com/get-npm)
+
+Once npm is installed on your computer, open a command prompt and run the following command:
 ~~~~
 > npm install -g handbrake-watcher
 ~~~~
@@ -35,7 +38,9 @@ $ handbrake-watcher
 
 This will start the daemon, which will scan the entire directory
 and subdirectories every 5 minutes.  When it is finished 
-converting a file, it will delete the original.
+converting a file, it will delete the original. If it sees that a file was recently
+modified, it will not start executing Handbrake on the file until the file has not
+been modified in a long time.
 
 ### Custom Configuration Options:
 
@@ -50,3 +55,11 @@ supported:
 * `handbrake.flags` - The flags to use for the handbrake conversion.  Only provide flags that don't require a value.  E.g. --all-audio.  Separate flags by spaces. For a full list of HandbrakeCLI flags, see the [HandBrakeCLI documentation](https://handbrake.fr/docs/en/latest/cli/cli-guide.html)
 * `handbrake.options.<optionname>` - Specify a particular handbrake command line option with value.  E.g. handbrake.options.preset=High Profile is akin to providing the command-line flag --preset='High Profile' to HandbrakeCLI.
 * `delete_original` - Whether to delete the original file upon successful conversion.  Values: `true`|`false` . Default: `true`
+
+An example of a 'handbrake.properties' file is:
+
+~~~~
+source.extension=mp4 mkv
+destination.extension=avi
+handbrakecli=C:\Users\Test\Downloads\HandbrakeCLI.exe
+~~~~
