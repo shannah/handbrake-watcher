@@ -99,7 +99,8 @@ public class HandbrakeWatcher {
         });
         
         handbrakeOpts.keySet().stream().forEach((key) -> {
-            commands.add("--"+key+"="+handbrakeOpts.get(key));
+            commands.add("--"+key);
+            commands.add(handbrakeOpts.get(key));
         });
         
         commands.add("-i");
