@@ -7,7 +7,7 @@
   "main": "index.js",
   "preferGlobal": true,
   "repository": "https://github.com/shannah/handbrake-watcher",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "jdeploy": {
     "jar": "dist/handbrake-watcher.jar"
   },
