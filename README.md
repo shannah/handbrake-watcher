@@ -80,3 +80,7 @@ source.extension=mp4 mkv
 destination.extension=avi
 handbrake.options.preset=Fast 1080p30
 ~~~~
+
+### Ignoring Directories
+
+You can tell handbrake-watcher to ignore directories by adding an empty file named ".handbrake-ignore" inside the directory you wish to ignore.
