@@ -59,7 +59,7 @@ public class HandbrakeWatcher {
     }
     
     private int convert(File file, String sourceExt, String destExt) throws IOException {
-        File destFile = new File(file.getParentFile(), getBaseName(file, sourceExt) + "." + destExt);
+        File destFile = new File(getDestinationDirectoryFor(file, true), getBaseName(file, sourceExt) + "." + destExt);
         if (destFile.exists()) {
             throw new IOException(destFile.getPath() + " already exists.");
         }
@@ -91,7 +91,7 @@ public class HandbrakeWatcher {
             flags.add("--all-audio");
         }
         if (!handbrakeOpts.containsKey("preset")) {
-            handbrakeOpts.put("preset", "High Profile");
+            handbrakeOpts.put("preset", "HQ 1080p30 Surround");
         }
         
         flags.stream().forEach((flag) -> {
@@ -137,13 +137,40 @@ public class HandbrakeWatcher {
     private String getProperty(String key, String defaultVal) {
         return System.getProperty(key, props.getProperty(key, defaultVal));
     }
+
+    private File getDestinationDirectoryFor(File file, boolean mkdirs) {
+        String destinationDirectory = getProperty("destination.dir", null);
+        if (destinationDirectory == null || destinationDirectory.isEmpty()) {
+            return file.getParentFile();
+        }
+
+        try {
+            destinationDirectory = destinationDirectory.replace("${src.dir}", file.getParentFile().getCanonicalPath());
+
+            File out = new File(destinationDirectory);
+            if (!out.exists()) {
+                boolean mkdirSuccess = out.mkdirs();
+                if (!mkdirSuccess) {
+                    warn("Failed to create destination directory " + out + ".  Using default destination directory.");
+                    return file.getParentFile();
+                }
+            }
+
+            return out;
+
+        } catch (Exception ex) {
+            warn("destination.dir was specified but an error occurred trying to parse it: " + ex.getMessage()+".");
+            return file.getParentFile();
+        }
+
+    }
     
     private void crawl(File root) {
         
         // Let's rename any autonamed titles from makemkv
         if (root.isFile() && root.getName().matches("^(D\\d\\:)?title\\d\\d\\.(mkv|mp4)$")) {
             String newName = root.getName().replace("title", "Extras (autogen) ").replace(".mkv", "-behindthescenes.mkv");
-            File newFile = new File(root.getParentFile(), newName);
+            File newFile = new File(getDestinationDirectoryFor(root, true), newName);
             if (root.renameTo(newFile)) {
                 root = newFile;
             }
@@ -152,7 +179,7 @@ public class HandbrakeWatcher {
         if (root.isFile() && root.getName().matches("^(D\\d\\:)?Extras \\(autogen\\) \\d\\d\\.(mkv|mp4)$")) {
             String newName = root.getName().replace(".mkv", "-behindthescenes.mkv")
                     .replace(".mp4", "-behindthescenes.mp4");
-            File newFile = new File(root.getParentFile(), newName);
+            File newFile = new File(getDestinationDirectoryFor(root, true), newName);
             if (root.renameTo(newFile)) {
                 root = newFile;
             }
@@ -160,7 +187,7 @@ public class HandbrakeWatcher {
         
         if (root.isFile() && root.getName().matches("^.*_t\\d\\d\\.mkv$")) {
             String newName = root.getName().substring(0, root.getName().lastIndexOf('.')) + "-behindthescenes.mkv";
-            File newFile = new File(root.getParentFile(), newName);
+            File newFile = new File(getDestinationDirectoryFor(root,true), newName);
             if (root.renameTo(newFile)) {
                 root = newFile;
             }
@@ -168,7 +195,7 @@ public class HandbrakeWatcher {
         
         if (root.isFile() && root.getName().matches("^.*_t\\d\\d\\.mp4$")) {
             String newName = root.getName().substring(0, root.getName().lastIndexOf('.')) + "-behindthescenes.mp4";
-            File newFile = new File(root.getParentFile(), newName);
+            File newFile = new File(getDestinationDirectoryFor(root, true), newName);
             if (root.renameTo(newFile)) {
                 root = newFile;
             }
@@ -206,7 +233,7 @@ public class HandbrakeWatcher {
                 }
                 if (root.getName().endsWith("." + sourceExtension)) {
                     String baseName = root.getName().substring(0, root.getName().length() - sourceExtension.length() - 1);
-                    File destFile = new File(root.getParentFile(), baseName + "." + destExtension);
+                    File destFile = new File(getDestinationDirectoryFor(root, true), baseName + "." + destExtension);
                     if (destFile.exists()) {
                         System.err.println(destFile + " already exists.  Not converting " + root);
                     } else {
@@ -289,6 +316,14 @@ public class HandbrakeWatcher {
                 + "      Default is mp4.  E.g. This would convert a file named\n"
                 + "      myvideo.mkv into a file named myvideo.mp4 in the same\n"
                 + "      directory.\n\n"
+                + "  destination.dir - Optional destination directory for converted files.\n"
+                + "      Default is same as source file.  E.g. This would convert a file named\n"
+                + "      myvideo.mkv into a file named myvideo.mp4 in the same\n"
+                + "      directory.\n"
+                + "      Optional placeholder of source parent directory ${src.dir}.  E.g. "
+                + "      destination.dir=${src.dir}/handbrake-converted\n"
+                + "      would place files in subdirectory named handbrake-converted of the source"
+                + "      file's directory.\n\n"
                 + "  handbrakecli - The path to the HandbrakeCLI binary.  If you\n"
                 + "      have this binary in your path already, then the \n"
                 + "      handbrake-watcher will use that one by default.\n\n"
@@ -300,7 +335,7 @@ public class HandbrakeWatcher {
                 + "      <https://handbrake.fr/docs/en/latest/cli/cli-guide.html>\n"
                 + "  handbrake.options.<optionname> - Specify a particular \n"
                 + "      handbrake command line option with value.  E.g.\n"
-                + "      handbrake.options.preset=High Profile \n"
+                + "      handbrake.options.preset=HQ 1080p30 Surround \n"
                 + "      is akin to providing the command-line flag --preset='High Profile'\n"
                 + "      to HandbrakeCLI.\n"
                 + "  delete_original - Whether to delete the original file upon\n"
@@ -308,5 +343,7 @@ public class HandbrakeWatcher {
         return out;
     }
     
-    
+    private void warn(String str) {
+        Logger.getLogger(HandbrakeWatcher.class.getName()).log(Level.WARNING, str);
+    }
 }
