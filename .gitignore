@@ -8,3 +8,4 @@ tests/bin/HandBrakeCLI
 tests/sample_video_library/*
 !tests/sample_video_library/handbrake.properties
 .idea
+jdeploy

@@ -7,12 +7,16 @@
   "main": "index.js",
   "preferGlobal": true,
   "repository": "https://github.com/shannah/handbrake-watcher",
-  "version": "1.0.15",
+  "version": "1.0.17",
   "jdeploy": {
     "jar": "dist/handbrake-watcher.jar"
   },
   "dependencies": {
-    "shelljs": "^0.7.5"
+    "command-exists-promise": "^2.0.2",
+    "node-fetch": "2.6.7",
+    "tar": "^4.4.8",
+    "yauzl": "^2.10.0",
+    "shelljs": "^0.8.4"
   },
   "license": "ISC",
   "name": "handbrake-watcher",

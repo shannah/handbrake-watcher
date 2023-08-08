@@ -67,6 +67,7 @@ The following configuration options are supported:
 
 * `source.extension` - The 'source' extension of files to look for.  Default is mkv.  Multiple extensions can be separated by spaces.
 * `destination.extension` - The extension used for converted files. Default is mp4.  E.g. This would convert a file named *myvideo.mkv* into a file named *myvideo.mp4* in the same directory.
+* `destination.dir` - Optional destination directory for converted files.  Default is the same directory as the source file. Use the `${src.dir}` placeholder to specify the path to the source file's directory.  E.g. To output to a subdirectory named "handbrake-converted", use `destination.dir=${src.dir}/handbrake-converted`.
 * `handbrakecli` - The path to the HandbrakeCLI binary.  If you have this binary in your path already, then the handbrake-watcher will use that one by default.
 * `handbrake.flags` - The flags to use for the handbrake conversion.  Only provide flags that don't require a value.  E.g. --all-audio.  Separate flags by spaces. For a full list of HandbrakeCLI flags, see the [HandBrakeCLI documentation](https://handbrake.fr/docs/en/latest/cli/cli-guide.html)
 * `handbrake.options.<optionname>` - Specify a particular handbrake command line option with value.  E.g. handbrake.options.preset=High Profile is akin to providing the command-line flag --preset='High Profile' to HandbrakeCLI.
