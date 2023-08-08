@@ -148,12 +148,15 @@ public class HandbrakeWatcher {
             destinationDirectory = destinationDirectory.replace("${src.dir}", file.getParentFile().getCanonicalPath());
 
             File out = new File(destinationDirectory);
-            if (!out.exists()) {
+            if (mkdirs && !out.exists()) {
                 boolean mkdirSuccess = out.mkdirs();
                 if (!mkdirSuccess) {
                     warn("Failed to create destination directory " + out + ".  Using default destination directory.");
                     return file.getParentFile();
                 }
+
+                File ignoreFile = new File(out, ".handbrake-ignore");
+                ignoreFile.createNewFile();
             }
 
             return out;
@@ -250,6 +253,9 @@ public class HandbrakeWatcher {
                 }
             }
         } else if (root.isDirectory()) {
+            if (new File(root, ".handbrake-ignore").exists()) {
+                System.out.println("Skipping " + root + " because a .handbrake-ignore file was found.");
+            }
             for (File child : root.listFiles()) {
                 try {
                     crawl(child);
